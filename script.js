@@ -2,14 +2,14 @@
 
 const taskContainer = document.querySelector(".task_container");
 
-const globalStore = [];                                 //Array to store data
+var globalStore = [];                                 //Array to store data
 
 const generateNewCard = (taskData) => `
-    <div class="col-md-6 col-lg-4" id=${taskData.id}>
+    <div class="col-md-6 col-lg-4" >
         <div class="card text-center">
             <div class="card-header d-flex justify-content-end gap-2">
                 <button type="button" class="btn btn-outline-success"><i class="fas fa-pencil-alt"></i></button>
-                <button type="button" class="btn btn-outline-danger"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn btn-outline-danger" id=${taskData.id} onclick="deleteCard.apply(this, arguments)"><i class="fas fa-trash" id=${taskData.id}></i></button>
             </div>
             <img src=${taskData.imageUrl} class="card-img-top" alt="...">
             <div class="card-body">
@@ -33,6 +33,7 @@ const loadInitialCardData = () => {
 
     // then loop over array of tasky objects to create our cand and inject to dom
     cards.map((cardObject) => {
+        //inject to dom
         taskContainer.insertAdjacentHTML("beforeend", generateNewCard(cardObject));
         //update globalStorage
         globalStore.push(cardObject);
@@ -57,11 +58,35 @@ const saveChanges = () => {
 
   localStorage.setItem("tasky", JSON.stringify({cards:globalStore}));            /* tasky is id and JSON.stringify({cards:globalStore}) is data. JSON.stringify to convert globalStore to string from object. cards is an object created by us */
 
-  
-
 };
 
-// Store data in local storage (Only 5 MB)
+// Store data in local storage (Only 5 MB) [solved]
 
 // API --> Aplication Programing Interface
 // Local Storage -> Application
+
+//Delete Card
+
+
+const deleteCard = (event) => {
+
+    event = window.event;
+    //id
+    const targetID = event.target.id;
+    const tagname = event.target.tagName;
+
+    // Match id of element with that of the one inside globalStore
+    // if match found remove the card
+
+    globalStore = globalStore.filter((cardObject) => cardObject.id !== targetID);           //updated array of card
+    localStorage.setItem("tasky", JSON.stringify({cards:globalStore}));
+
+    //contact paprent i.e task_container
+
+    if (tagname === "BUTTON") {
+        return taskContainer.removeChild(event.target.parentNode.parentNode.parentNode);
+    }
+    else{
+        return taskContainer.removeChild(event.target.parentNode.parentNode.parentNode.parentNode);
+    }
+};
