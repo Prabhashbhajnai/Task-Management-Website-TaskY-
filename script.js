@@ -18,7 +18,7 @@ const generateNewCard = (taskData) => `
                 <a href="#" class="btn btn-primary">${taskData.taskType}</a>
             </div>
             <div class="card-footer">
-                <button type="button" class="btn btn-outline-primary">Open Task</button>
+                <button type="button" id=${taskData.id} class="btn btn-outline-primary">Open Task</button>
             </div>
         </div>
     </div>
@@ -119,15 +119,50 @@ const editCard = (event) => {
     taskTitle.setAttribute("contenteditable", "true");
     taskDescription.setAttribute("contenteditable", "true");
     taskType.setAttribute("contenteditable", "true");
+    submitButton.setAttribute("onclick", "saveEditChanges.apply(this, arguments)");
     submitButton.innerHTML = "Save Changes";
-    
-
-    
-
-    
-
 };
 
+const saveEditChanges = (event) => {
+    event = window.event;
+    //id
+    const targetID = event.target.id;
+    const tagname = event.target.tagName;
 
-//contenteditable = "True"
-// setAtributeNode(contenteditable, true)
+    let parentElement;
+
+    if(tagname === "BUTTON"){
+        parentElement = event.target.parentNode.parentNode;
+    }
+    else{
+        parentElement = event.target.parentNode.parentNode.parentNode;
+    }
+
+    let taskTitle = parentElement.childNodes[5].childNodes[1];
+    let taskDescription = parentElement.childNodes[5].childNodes[3];
+    let taskType = parentElement.childNodes[5].childNodes[5];
+    // Save Button
+    let submitButton = parentElement.childNodes[7].childNodes[1];
+
+    const updatedData = {
+        taskTitle: taskTitle.innerHTML,
+        taskType: taskType.innerHTML,
+        taskDescription: taskDescription.innerHTML,
+    };
+
+    globalStore = globalStore.map((task) => {
+        if (task.id === targetID){
+            return{
+                id: task.id, 
+                imageUrl: task.imageUrl,
+                taskTitle: updatedData.taskTitle,
+                taskType: updatedData.taskType,
+                taskDescription: updatedData.taskDescription,
+            };
+        }
+        return;     //Important
+    });
+
+    localStorage.setItem("tasky", JSON.stringify({cards:globalStore}));
+
+};
